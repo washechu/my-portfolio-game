@@ -117,8 +117,8 @@ function StartScreen({ onStart }) {
           onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
           onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
         >
-          Начать
-        </button>
+        Начать
+      </button>
       </div>
     </div>
   );
@@ -148,7 +148,8 @@ function Game() {
   const [completedLexa, setCompletedLexa] = useState(false);
 
   // --- Финальный NPC: Пицца (объявления выше всех вычислений) ---
-  const pizzaCol = 10;
+  const pizzaColStart = 10;
+  const pizzaColEnd = 11;
   const pizzaRow = 6;
   const [completedPizza, setCompletedPizza] = useState(false);
   const [isPizzaAnimated, setIsPizzaAnimated] = useState(false);
@@ -156,24 +157,24 @@ function Game() {
   const isPizzaVisible = completedPasha && completedPolina && completedHrLena && completedLexa && !completedPizza;
   // Проверка: игрок рядом с Пиццей
   const isNearPizza = isPizzaVisible && (
-    (cell.row === pizzaRow + 1 && cell.col === pizzaCol) ||
-    (cell.row === pizzaRow - 1 && cell.col === pizzaCol) ||
-    (cell.col === pizzaCol - 1 && cell.row === pizzaRow) ||
-    (cell.col === pizzaCol + 1 && cell.row === pizzaRow)
+    (cell.row === pizzaRow + 1 && (cell.col === pizzaColStart || cell.col === pizzaColEnd)) ||
+    (cell.row === pizzaRow - 1 && (cell.col === pizzaColStart || cell.col === pizzaColEnd)) ||
+    (cell.col === pizzaColStart - 1 && cell.row === pizzaRow) ||
+    (cell.col === pizzaColEnd + 1 && cell.row === pizzaRow)
   );
   // Диалог для Пиццы
-  const pizzaDialogPairs = [
+  const moneyDialogPairs = [
     {
       npc: {
-        name: 'Пицца',
+        name: 'Денежка',
         avatar: '/pizza_down.png',
-        text: 'Поздравляю! Сегодня ты закрыл четыре проекта и заслужил кусочек отдыха.',
+        text: 'Поздравляю! Сегодня ты закрыл четыре проекта и заслужил зарплату.',
         color: 'white',
       },
       player: {
         name: 'Проджект Никита',
         avatar: '/me_avatar.png',
-        text: 'Надеюсь, ты вкусная и без ананасов.',
+        text: 'Надеюсь, ты большая и вкусная.',
         color: '#d4f7d4',
       },
     },
@@ -382,7 +383,7 @@ function Game() {
     // Охранное поле сверху
     const isLexaTopGuard = !completedLexa && (col >= lexaColStart && col <= lexaColEnd) && (row === lexaRowStart - 1);
     // Пицца занимает одну клетку в центре
-    const isPizza = isPizzaVisible && !completedPizza && col === pizzaCol && row === pizzaRow;
+    const isPizza = isPizzaVisible && !completedPizza && col === pizzaColStart && row === pizzaRow;
     return isPasha || isPolina || isHrLena || isLexa || isLexaTopGuard || isPizza;
   }
 
@@ -391,7 +392,7 @@ function Game() {
   if (activeNpc === 'polina') activeDialogPairs = polinaDialogPairs;
   if (activeNpc === 'hrlena') activeDialogPairs = hrLenaDialogPairs;
   if (activeNpc === 'lexa') activeDialogPairs = lexaDialogPairs;
-  if (activeNpc === 'pizza') activeDialogPairs = pizzaDialogPairs;
+  if (activeNpc === 'pizza') activeDialogPairs = moneyDialogPairs;
 
   const [dialogPairStep, setDialogPairStep] = useState(0);
   const [showPlayerReply, setShowPlayerReply] = useState(false);
@@ -946,6 +947,124 @@ function Game() {
     </>
   );
 
+  // --- Внутри компонента Game, рядом с карточками других NPC ---
+  const [pizzaQuizStep, setPizzaQuizStep] = useState(0); // 0: тест, 1: финальная карточка
+  const [pizzaAnswers, setPizzaAnswers] = useState([null, null, null]);
+
+  const pizzaQuizCard = (
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        background: 'white',
+        border: '4px solid #222',
+        borderRadius: 16,
+        padding: '32px 24px',
+        minWidth: 420,
+        maxWidth: 800,
+        width: 'auto',
+        minHeight: 320,
+        zIndex: 200,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
+        fontSize: '1rem',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '1em', textAlign: 'left', width: '100%', alignSelf: 'flex-start' }}>
+        Мини-тест для будущих коллег
+      </div>
+      <div style={{ width: '100%', marginBottom: '1.2em', textAlign: 'left', fontSize: '0.95rem', lineHeight: 1.7 }}>
+        1. Подойдет ли вам парень, готовый <span style={{ color: '#1976d2', fontWeight: 700 }}>много и усердно</span> работать?
+        <div style={{ marginTop: 8, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'center', lineHeight: 2.1 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+            <input type="radio" name="pizza-q1" value="Да" checked={pizzaAnswers[0]==="Да"} onChange={() => setPizzaAnswers(a => ["Да", a[1], a[2]])} style={{ accentColor: '#1976d2', width: 18, height: 18 }} /> Да
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+            <input type="radio" name="pizza-q1" value="Нет" checked={pizzaAnswers[0]==="Нет"} onChange={() => setPizzaAnswers(a => ["Нет", a[1], a[2]])} style={{ accentColor: '#1976d2', width: 18, height: 18 }} /> Нет
+          </label>
+        </div>
+        <div style={{ marginBottom: '1.2em' }} />
+        2. Цените ли вы <span style={{ color: '#1976d2', fontWeight: 700 }}>исполнительность и самостоятельность</span>?
+        <div style={{ marginTop: 8, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'center', lineHeight: 2.1 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+            <input type="radio" name="pizza-q2" value="Да" checked={pizzaAnswers[1]==="Да"} onChange={() => setPizzaAnswers(a => [a[0], "Да", a[2]])} style={{ accentColor: '#1976d2', width: 18, height: 18 }} /> Да
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+            <input type="radio" name="pizza-q2" value="Нет" checked={pizzaAnswers[1]==="Нет"} onChange={() => setPizzaAnswers(a => [a[0], "Нет", a[2]])} style={{ accentColor: '#1976d2', width: 18, height: 18 }} /> Нет
+          </label>
+        </div>
+        <div style={{ marginBottom: '1.2em' }} />
+        3. Будут ли кстати в вашей команде острый бытовой <span style={{ color: '#1976d2', fontWeight: 700 }}>юмор и незашоренный ум</span>?
+        <div style={{ marginTop: 8, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'center', lineHeight: 2.1 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+            <input type="radio" name="pizza-q3" value="Да" checked={pizzaAnswers[2]==="Да"} onChange={() => setPizzaAnswers(a => [a[0], a[1], "Да"])} style={{ accentColor: '#1976d2', width: 18, height: 18 }} /> Да
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+            <input type="radio" name="pizza-q3" value="Нет" checked={pizzaAnswers[2]==="Нет"} onChange={() => setPizzaAnswers(a => [a[0], a[1], "Нет"])} style={{ accentColor: '#1976d2', width: 18, height: 18 }} /> Нет
+          </label>
+        </div>
+      </div>
+      <button
+        style={{ marginTop: 12, fontWeight: 900, fontSize: '1.1rem', borderRadius: 10, border: '2px solid #222', background: '#1976d2', color: '#fff', padding: '12px 36px', fontFamily: 'inherit', cursor: (pizzaAnswers[0]==='Да' && pizzaAnswers[1]==='Да' && pizzaAnswers[2]==='Да') ? 'pointer' : 'not-allowed', opacity: (pizzaAnswers[0]==='Да' && pizzaAnswers[1]==='Да' && pizzaAnswers[2]==='Да') ? 1 : 0.5 }}
+        disabled={!(pizzaAnswers[0]==='Да' && pizzaAnswers[1]==='Да' && pizzaAnswers[2]==='Да')}
+        onClick={() => setPizzaQuizStep(1)}
+      >
+        Ответить
+      </button>
+    </div>
+  );
+
+  const pizzaFinalCard = (
+    <div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        background: 'white',
+        border: '4px solid #222',
+        borderRadius: 16,
+        padding: '32px 24px',
+        minWidth: 420,
+        maxWidth: 800,
+        width: 'auto',
+        minHeight: 320,
+        zIndex: 200,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
+        fontSize: '1rem',
+        textAlign: 'center',
+      }}
+    >
+      <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '1em', textAlign: 'left', width: '100%', alignSelf: 'flex-start' }}>
+        Спасибо за внимание!
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+        Сейчас я ищу возможности, где смогу применить свой опыт для создания полезных и работающих решений.
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+        Я умею придумывать, наводить порядок и делать это без лишнего шума. Предпочитаю работать тихо и профессионально, но с чувством юмора.
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+        До встречи на собеседовании!
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
+      <div style={{display:'flex',gap:24,flexWrap:'wrap',marginTop:8,justifyContent:'flex-start',alignSelf:'flex-start',width:'100%'}}>
+        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Скачать резюме</a>
+        <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Telegram</a>
+        <a href="#" onClick={() => window.location.reload()} style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Еще раз!</a>
+      </div>
+    </div>
+  );
+
   return (
     <div
       className="game-field"
@@ -1073,7 +1192,7 @@ function Game() {
           alt="Пицца"
           style={{
             position: 'absolute',
-            left: `${((pizzaCol - 0.5) / columns) * 100}%`,
+            left: `${((pizzaColStart + pizzaColEnd) / 2 - 0.5) / columns * 100}%`,
             top: `${((pizzaRow - 0.5) / rows) * 100}%`,
             width: npcWidth,
             ...(npcMaxWidth !== undefined ? { maxWidth: npcMaxWidth } : {}),
@@ -1188,10 +1307,10 @@ function Game() {
               )}
               {isNearPizza && (
                 <>
-                  <img src="/pizza_down.png" alt="Пицца" style={{ width: bubbleIconSize, height: bubbleIconSize, borderRadius: 6, border: '2px solid #222', background: '#fff' }} />
-                  <span style={{ fontWeight: 900, fontSize: bubbleNameFontSize, fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace' }}>Пицца</span>
-                </>
-              )}
+                  <img src="/pizza_down.png" alt="Денежка" style={{ width: bubbleIconSize, height: bubbleIconSize, borderRadius: 6, border: '2px solid #222', background: '#fff' }} />
+                  <span style={{ fontWeight: 900, fontSize: bubbleNameFontSize, fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace' }}>Денежка</span>
+                  </>
+                )}
               </div>
               <div
                 style={{
@@ -1217,7 +1336,7 @@ function Game() {
                   {isNearPolina && 'Непорядок в беклоге!'}
                   {isNearHrLena && 'Го онбординг!'}
                 {isNearLexa && 'Опять летят метеориты!'}
-                {isNearPizza && 'Съешь меня!'}
+                {isNearPizza && 'Денежка: Возьми меня!'}
                 </div>
               </div>
             </div>
@@ -1297,37 +1416,37 @@ function Game() {
             <div style={{ display: 'flex', alignItems: 'center', gap: bubbleGap, marginBottom: 4, alignSelf: 'flex-start' }}>
               <img src={activeDialogPairs[dialogPairStep].player.avatar} alt={activeDialogPairs[dialogPairStep].player.name} style={{ width: bubbleIconSize, height: bubbleIconSize, borderRadius: 6, border: '2px solid #222', background: '#fff' }} />
               <span style={{ fontWeight: 900, fontSize: bubbleNameFontSize, fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace' }}>{activeDialogPairs[dialogPairStep].player.name}</span>
-            </div>
-            <div
-              style={{
-                background: '#1976d2',
-                border: '3px solid black',
-                borderRadius: 8,
-                boxShadow: '0 2px 0 #222',
+                </div>
+                <div
+                  style={{
+                    background: '#1976d2',
+                    border: '3px solid black',
+                    borderRadius: 8,
+                    boxShadow: '0 2px 0 #222',
                 padding: bubblePadding,
-                width: '100%',
-                fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-                letterSpacing: '0.5px',
-                lineHeight: 1.5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                boxSizing: 'border-box',
-                animation: 'playerBlink 1.2s steps(2, start) infinite',
-              }}
-            >
-              <div
-                style={{
+                    width: '100%',
+                    fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
+                    letterSpacing: '0.5px',
+                    lineHeight: 1.5,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    boxSizing: 'border-box',
+                    animation: 'playerBlink 1.2s steps(2, start) infinite',
+                  }}
+                >
+                  <div
+                    style={{
                   fontSize: bubbleFontSize,
-                  width: '100%',
+                      width: '100%',
                   minHeight: bubbleMinHeight,
-                  textAlign: 'left',
-                  wordBreak: 'break-word',
-                }}
-              >
-                {activeDialogPairs[dialogPairStep].player.text}
-              </div>
-            </div>
+                      textAlign: 'left',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {activeDialogPairs[dialogPairStep].player.text}
+                  </div>
+                </div>
           </div>
           {/* Статичная подсказка для диалога */}
             <div
@@ -1356,43 +1475,9 @@ function Game() {
            activeNpc === 'lexa' && !completedLexa ? lexaProjectCard :
            activeNpc === 'pizza' && !completedPizza ? (
             <>
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  background: 'white',
-                  border: '4px solid #222',
-                  borderRadius: 16,
-                  padding: '32px 24px',
-                  minWidth: 420,
-                  maxWidth: 800,
-                  width: 'auto',
-                  minHeight: 320,
-                  zIndex: 200,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-                  fontSize: '1rem',
-                  textAlign: 'center',
-                }}
-              >
-                <div style={{ fontWeight: 900, fontSize: '1.1rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
-                  Спасибо за внимание!
-                </div>
-                <div style={{ fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-                  Сейчас я ищу возможности, где смогу применить свой опыт для создания полезных и работающих решений.<br /><br />
-                  Я умею придумывать, наводить порядок и делать это без лишнего шума. Предпочитаю работать тихо и профессионально, но с чувством юмора.<br /><br />
-                  <b>До встречи на собеседовании!</b><br /><br />
-                  <div style={{display:'flex',gap:24,flexWrap:'wrap'}}>
-                    <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Скачать резюме</a>
-                    <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Telegram</a>
-                    <a href="#" onClick={() => window.location.reload()} style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Еще раз!</a>
-                  </div>
-                </div>
-              </div>
+              {activeNpc === 'pizza' && !completedPizza ? (
+                pizzaQuizStep === 0 ? pizzaQuizCard : pizzaFinalCard
+              ) : null}
             </>
           ) : null}
         </>
@@ -1450,7 +1535,7 @@ function Game() {
             lineHeight: 1.5,
           }}
         >
-          {isPizzaVisible ? 'Забери пиццу!' : 'Управляй стрелками!'}
+          {isPizzaVisible ? 'Забери денежку!' : 'Управляй стрелками!'}
         </div>
       )}
     </div>
