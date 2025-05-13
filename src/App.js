@@ -481,17 +481,17 @@ function Game() {
   let npcWidth, npcMaxWidth, npcMinWidth;
   let lexaWidth, lexaMaxWidth, lexaMinWidth;
   if (windowWidth < 1000) {
-    COUNTER_ICON_SIZE = 54;
+    COUNTER_ICON_SIZE = 81; // было 54
     playerWidth = '18vw'; playerMaxWidth = 96; playerMinWidth = 40;
     npcWidth = '20vw'; npcMaxWidth = 110; npcMinWidth = 44;
     lexaWidth = '30vw'; lexaMaxWidth = 165; lexaMinWidth = 66;
   } else if (windowWidth >= 1000 && windowWidth <= 1500) {
-    COUNTER_ICON_SIZE = 80;
+    COUNTER_ICON_SIZE = 120; // было 80
     playerWidth = '12vw'; playerMaxWidth = 120; playerMinWidth = 56;
     npcWidth = '14vw'; npcMaxWidth = 150; npcMinWidth = 64;
     lexaWidth = '20vw'; lexaMaxWidth = 220; lexaMinWidth = 96;
   } else {
-    COUNTER_ICON_SIZE = 140;
+    COUNTER_ICON_SIZE = 210; // было 140
     playerWidth = '9vw'; playerMaxWidth = undefined; playerMinWidth = 64;
     npcWidth = '11vw'; npcMaxWidth = undefined; npcMinWidth = 72;
     lexaWidth = '16vw'; lexaMaxWidth = undefined; lexaMinWidth = 108;
