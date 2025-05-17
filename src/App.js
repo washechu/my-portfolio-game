@@ -724,19 +724,19 @@ function Game() {
         </div>
         <div style={{ height: 24 }} />
         <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
             Задача
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             Нужно было понять, где теряется время при выводе новых фичей и как ускорить релизы.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Решение
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             Внедрил метрики Time To Market, автоматизировал сбор данных, построил дешборд и провёл ретроспективу с командой.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Результат
           </div>
           <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
@@ -818,19 +818,19 @@ function Game() {
         </div>
         <div style={{ height: 24 }} />
         <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
             Задача
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             У новых сотрудников не было нужной инфы: кто за что отвечает, как устроена структура и как работает сложный продукт
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Решение
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             Я исследовал CJM нового сотрудника и проанализировал выводы. Решением стали обучающий курс, чек-лист и сводная страница в Confluence.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Результат
           </div>
           <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
@@ -912,19 +912,19 @@ function Game() {
         </div>
         <div style={{ height: 24 }} />
         <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
             Задача
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             8 продуктовых команд —  разные подходы к статусам. Нужно было унифицировать процесс.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Решение
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             Провёл аудит, собрал требования, разработал флоу задач и шаблон отчёта, внедрил единый процесс и обучил команды.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Результат
           </div>
           <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
@@ -1007,19 +1007,19 @@ function Game() {
         </div>
         <div style={{ height: 24 }} />
         <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
             Задача
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             ИТ лидировали встречу с приоритетами за круглым столом с заказчиками. Общих принципов приоритезации не было и всем было сложно договориться.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Решение
           </div>
           <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
             Провёл аудит взаимодействия, описал болевые точки и предложил единый принцип приоритезации, за который теперь отвечают бизнес-команды.
           </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' }}>
+          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
             Результат
           </div>
           <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
@@ -1204,10 +1204,16 @@ function Game() {
       </div>
       <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
       <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
-      <div style={{display:'flex',gap:24,flexWrap:'wrap',marginTop:8,justifyContent:'flex-start',alignSelf:'flex-start',width:'100%'}}>
-        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Скачать резюме</a>
-        <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Telegram</a>
-        <a href="#" onClick={() => window.location.reload()} style={{color:'#1976d2',textDecoration:'underline',fontWeight:700}}>Еще раз!</a>
+      <div style={{display:'flex',gap:32,flexWrap:'wrap',marginTop:16,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start',width:'100%'}}>
+        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+          <img src="/hh.png" alt="Скачать резюме" style={{width:48,height:48}} />
+        </a>
+        <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+          <img src="/tg.png" alt="Telegram" style={{width:48,height:48}} />
+        </a>
+        <a href="#" onClick={() => window.location.reload()} style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+          <img src="/me.png" alt="Еще раз!" style={{width:48,height:48}} />
+        </a>
       </div>
     </div>
   );
