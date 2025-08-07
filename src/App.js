@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import confetti from 'canvas-confetti';
 
 function StartScreen({ onStart }) {
   // Добавляем состояние для анимации
@@ -168,6 +169,99 @@ function MoneyPreloader() {
           transform: isAnimated ? 'scale(1.08)' : 'scale(0.95)',
         }}
       />
+    </div>
+  );
+}
+
+// Финальный экран с конфетти
+function FinalScreen() {
+  useEffect(() => {
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+    const interval = setInterval(function() {
+      confetti({
+        ...defaults,
+        particleCount: 60,
+        origin: {
+          x: randomInRange(0.1, 0.9),
+          y: randomInRange(0.1, 0.5)
+        }
+      });
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div style={{
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
+      background: 'white',
+      border: '2.5px solid #3566b0',
+      borderBottom: '2.5px solid #222',
+      borderRadius: '16px 16px 0 0',
+      padding: '0 32px 32px 32px',
+      minWidth: 420,
+      maxWidth: 800,
+      width: 'auto',
+      minHeight: 320,
+      zIndex: 200,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
+      fontSize: '1rem',
+      textAlign: 'center',
+      boxShadow: '0 4px 0 #222',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
+        color: '#fff',
+        padding: '10px 32px',
+        paddingBottom: '12px',
+        borderBottom: '2px solid #222',
+        borderRadius: '12px 12px 0 0',
+        width: '100%',
+        fontWeight: 900,
+        fontSize: '1.1rem',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <span>Спасибо за внимание!</span>
+        <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
+          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
+          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
+          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
+        </span>
+      </div>
+      <div style={{ height: 24 }} />
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+        Сейчас я ищу возможности, где смогу применить свой опыт для создания полезных и работающих решений.
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+        Я умею придумывать, наводить порядок и делать это без лишнего шума. Предпочитаю работать тихо и профессионально, но с чувством юмора.
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+        До встречи на собеседовании!
+      </div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
+      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
+      <div style={{display:'flex',gap:32,flexWrap:'wrap',marginTop:16,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start',width:'100%'}}>
+        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+          <img src="/hh.png" alt="Скачать резюме" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
+        </a>
+        <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+          <img src="/tg.png" alt="Telegram" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
+        </a>
+        <a href="https://washechuvachestvo.notion.site/11f172e21500808782edf8cb8ab43cab" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+          <img src="/me.png" alt="Еще раз!" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
+        </a>
+      </div>
     </div>
   );
 }
@@ -699,6 +793,8 @@ function Game() {
           setShowPlayerReply(false);
           setShowProjectCard(false);
           setActiveNpc(null);
+          // Проигрываем звук успеха
+          playSuccessSound();
         }
       }
     }
@@ -1191,80 +1287,7 @@ function Game() {
     </div>
   );
 
-  const pizzaFinalCard = (
-    <div
-      style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        background: 'white',
-        border: '2.5px solid #3566b0',
-        borderBottom: '2.5px solid #222',
-        borderRadius: '16px 16px 0 0',
-        padding: '0 32px 32px 32px',
-        minWidth: 420,
-        maxWidth: 800,
-        width: 'auto',
-        minHeight: 320,
-        zIndex: 200,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-        fontSize: '1rem',
-        textAlign: 'center',
-        boxShadow: '0 4px 0 #222',
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{
-        background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-        color: '#fff',
-        padding: '10px 32px',
-        paddingBottom: '12px',
-        borderBottom: '2px solid #222',
-        borderRadius: '12px 12px 0 0',
-        width: '100%',
-        fontWeight: 900,
-        fontSize: '1.1rem',
-        textAlign: 'left',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <span>Спасибо за внимание!</span>
-        <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-        </span>
-      </div>
-      <div style={{ height: 24 }} />
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-        Сейчас я ищу возможности, где смогу применить свой опыт для создания полезных и работающих решений.
-      </div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-        Я умею придумывать, наводить порядок и делать это без лишнего шума. Предпочитаю работать тихо и профессионально, но с чувством юмора.
-      </div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-        До встречи на собеседовании!
-      </div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
-      <div style={{display:'flex',gap:32,flexWrap:'wrap',marginTop:16,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start',width:'100%'}}>
-        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
-          <img src="/hh.png" alt="Скачать резюме" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
-        </a>
-        <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
-          <img src="/tg.png" alt="Telegram" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
-        </a>
-        <a href="https://washechuvachestvo.notion.site/11f172e21500808782edf8cb8ab43cab" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
-          <img src="/me.png" alt="Еще раз!" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
-        </a>
-      </div>
-    </div>
-  );
+  const pizzaFinalCard = <FinalScreen />;
 
   // Список ассетов для прелоадера
   const assetsToPreload = [
@@ -1292,6 +1315,12 @@ function Game() {
     return () => clearTimeout(failTimer);
   }, []);
   if (isLoading) return <MoneyPreloader />;
+
+  function playSuccessSound() {
+    const audio = new window.Audio('/success.mp3');
+    audio.volume = 0.5;
+    audio.play();
+  }
 
   return (
     <div
@@ -1704,7 +1733,7 @@ function Game() {
            activeNpc === 'pizza' && !completedPizza ? (
             <>
               {activeNpc === 'pizza' && !completedPizza ? (
-                pizzaQuizStep === 0 ? pizzaQuizCard : pizzaFinalCard
+                pizzaQuizStep === 0 ? pizzaQuizCard : <FinalScreen />
               ) : null}
             </>
           ) : null}
