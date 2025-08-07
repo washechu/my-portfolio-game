@@ -137,6 +137,41 @@ function StartScreen({ onStart }) {
   );
 }
 
+// Прелоадер с денежкой
+function MoneyPreloader() {
+  const [isAnimated, setIsAnimated] = useState(false);
+  useEffect(() => {
+    const interval = setInterval(() => setIsAnimated(a => !a), 400);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#FCFAFA',
+      zIndex: 1000,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+    }}>
+      <img
+        src={isAnimated ? '/pizza_up.png' : '/pizza_down.png'}
+        alt="Загрузка..."
+        style={{
+          width: 120,
+          height: 120,
+          filter: 'drop-shadow(0 4px 16px #ffd70099)',
+          transition: 'transform 0.2s',
+          transform: isAnimated ? 'scale(1.08)' : 'scale(0.95)',
+        }}
+      />
+    </div>
+  );
+}
+
 function Game() {
   const columns = 20;
   const rows = 12;
@@ -1230,6 +1265,33 @@ function Game() {
       </div>
     </div>
   );
+
+  // Список ассетов для прелоадера
+  const assetsToPreload = [
+    '/me_start_down.png', '/me_start.png', '/pizza_up.png', '/pizza_down.png',
+    '/bold_pm_up.png', '/bold_pm.png', '/blond_down.png', '/blond.png',
+    '/hr_stay.png', '/hr_drink.png', '/coder_active.png', '/coder_stay.png',
+    '/me_avatar.png', '/bold_pm_avatar.png', '/blond_avatar.png', '/hr_avatar.png', '/coder_avatar.png',
+    '/pizza_down.png', '/icon_project_default.png'
+  ];
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    let loaded = 0;
+    const onLoad = () => {
+      loaded++;
+      if (loaded === assetsToPreload.length) setIsLoading(false);
+    };
+    assetsToPreload.forEach(src => {
+      const img = new window.Image();
+      img.onload = onLoad;
+      img.onerror = onLoad;
+      img.src = src;
+    });
+    // Если вдруг не все загрузились за 5 секунд, снимаем прелоадер
+    const failTimer = setTimeout(() => setIsLoading(false), 5000);
+    return () => clearTimeout(failTimer);
+  }, []);
+  if (isLoading) return <MoneyPreloader />;
 
   return (
     <div
