@@ -449,7 +449,7 @@ function StartScreen({ onStart }) {
       </button>
       {/* Иконки-ссылки под кнопкой */}
       <div style={{display:'flex',gap:32,marginTop:44,alignItems:'flex-start'}}>
-        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+        <a href="/resume_potapov.docx" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
           <img src="/hh.png" alt="Скачать резюме" style={{width:38,height:38,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
         </a>
         <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
@@ -533,7 +533,7 @@ function FinalScreen({ inline }) {
       <div style={paragraphStyle}>&nbsp;</div>
       <div style={paragraphStyle}>&nbsp;</div>
       <div style={{display:'flex',gap:32,flexWrap:'wrap',marginTop:16,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start',width:'100%'}}>
-        <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
+        <a href="/resume_potapov.docx" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
           <img src="/hh.png" alt="Скачать резюме" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
         </a>
         <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
