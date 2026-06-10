@@ -94,6 +94,7 @@ function XpWindow({ title, children, showCloseHint, inline }) {
         minHeight: 0,
         padding: '0 16px 24px 16px',
         margin: '0 auto',
+        boxSizing: 'border-box',
       }
     : xpWindowStyle;
   // В inline (мобильном) режиме шапку делаем компактнее, чтобы окно было в одном масштабе с бабблом
@@ -227,9 +228,9 @@ function MobileShowcase() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FCFAFA', fontFamily: font, padding: '32px 16px 64px', boxSizing: 'border-box' }}>
+    <div style={{ minHeight: '100vh', background: '#FCFAFA', fontFamily: font, padding: '12px 16px 64px', boxSizing: 'border-box' }}>
       {/* Hero */}
-      <div style={{ ...sectionWrap, marginBottom: 48 }}>
+      <div style={{ ...sectionWrap, marginBottom: 40 }}>
         <img src={isAnimated ? '/me_start_down.png' : '/me_start.png'} alt="Никита" style={{ width: 160, maxWidth: '55%', height: 'auto', display: 'block', margin: '0 auto 16px' }} />
         <h1 style={{ fontSize: '1.3rem', fontWeight: 900, margin: '0 0 16px', lineHeight: 1.4, textAlign: 'left' }}>Привет, я Никита</h1>
         <p style={{ ...textStyle, margin: 0 }}>
@@ -254,7 +255,7 @@ function MobileShowcase() {
               {npc.hook}
             </div>
             {!open && (
-              <div style={{ marginTop: 8, fontSize: '0.7rem', color: '#1976d2', fontWeight: 700 }}>
+              <div style={{ marginTop: 8, fontSize: '0.7rem', color: '#1976d2', fontWeight: 700, textAlign: 'center' }}>
                 Нажми, чтобы ответить
               </div>
             )}
@@ -276,7 +277,7 @@ function MobileShowcase() {
           onClick={() => setShowQuiz(true)}
         />
         <p style={{ fontSize: '0.8rem', lineHeight: 1.8, marginTop: 12 }}>
-          Четыре проекта закрыты — пора за заслуженной зарплатой!
+          Все проекты закрыты — пора за зарплатой!
           {!showQuiz && <><br /><span style={{ color: '#1976d2', fontWeight: 700 }}>Тапни монетку 👆</span></>}
         </p>
       </div>
