@@ -78,11 +78,27 @@ function TrafficLights() {
   );
 }
 
-// Окно в стиле XP с заголовком; при showCloseHint показывает подсказку «Нажми Пробел, чтобы закрыть»
-function XpWindow({ title, children, showCloseHint }) {
+// Окно в стиле XP с заголовком; при showCloseHint показывает подсказку «Нажми Пробел, чтобы закрыть».
+// inline — режим «в потоке» (для мобильного скролла вместо центрирования абсолютом).
+function XpWindow({ title, children, showCloseHint, inline }) {
+  const windowStyle = inline
+    ? {
+        ...xpWindowStyle,
+        position: 'static',
+        left: 'auto',
+        top: 'auto',
+        transform: 'none',
+        minWidth: 0,
+        maxWidth: 480,
+        width: '100%',
+        minHeight: 0,
+        padding: '0 16px 24px 16px',
+        margin: '0 auto',
+      }
+    : xpWindowStyle;
   return (
     <>
-      <div style={xpWindowStyle}>
+      <div style={windowStyle}>
         <div style={xpTitleBarStyle}>
           <span>{title}</span>
           <TrafficLights />
@@ -90,7 +106,7 @@ function XpWindow({ title, children, showCloseHint }) {
         <div style={{ height: 24 }} />
         {children}
       </div>
-      {showCloseHint && (
+      {showCloseHint && !inline && (
         <div style={closeHintStyle}>Нажми Пробел, чтобы закрыть</div>
       )}
     </>
@@ -98,11 +114,11 @@ function XpWindow({ title, children, showCloseHint }) {
 }
 
 // Карточка кейса: Задача / Решение / Результат
-function ProjectCard({ title, task, solution, result }) {
+function ProjectCard({ title, task, solution, result, inline }) {
   const sectionTitleStyle = { fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' };
   const sectionTextStyle = { fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 };
   return (
-    <XpWindow title={title} showCloseHint>
+    <XpWindow title={title} showCloseHint={!inline} inline={inline}>
       <div>
         <div style={{ ...sectionTitleStyle, marginTop: 0 }}>Задача</div>
         <div style={sectionTextStyle}>{task}</div>
@@ -142,6 +158,146 @@ const PROJECT_CARDS = {
     result: 'Процесс стал прозрачным: бизнес приносит уже согласованный бэклог, а ИТ фокусируется на задачах с понятным приоритетом.',
   },
 };
+
+// NPC для мобильной витрины: аватар + реплика-завязка (порядок = порядок кейсов в игре)
+const MOBILE_NPCS = [
+  { key: 'pasha', name: 'Продакт Паша', avatar: '/bold_pm_avatar.png', hook: 'Хочу знать, почему так долго деливерим фичи! Беклог разрастается, команда в запаре.' },
+  { key: 'polina', name: 'Тимлид Полина', avatar: '/blond_avatar.png', hook: 'Я не понимаю, кто у меня что делает — у каждого продукта своя форма отчётности.' },
+  { key: 'hrlena', name: 'HR Лена', avatar: '/hr_avatar.png', hook: 'Никитос, беда. Базовый онбординг вообще не закрывает вопросы о продукте.' },
+  { key: 'lexa', name: 'Разработчик Леха', avatar: '/coder_avatar.png', hook: 'Опять приоритеты меняются на лету: вчера одно важное, сегодня другое.' },
+];
+
+// Вопросы финального мини-теста (общие для игры и мобилы)
+const QUIZ_QUESTIONS = [
+  { prefix: '1. Подойдёт ли вам парень, готовый ', accent: 'много и усердно', suffix: ' работать?' },
+  { prefix: '2. Цените ли вы ', accent: 'исполнительность и самостоятельность', suffix: '?' },
+  { prefix: '3. Будут ли кстати в вашей команде острый бытовой ', accent: 'юмор и незашоренный ум', suffix: '?' },
+];
+
+// Мобильная витрина (< 1024px): тот же нарратив и кейсы, но вертикальным скроллом без управления
+function MobileShowcase() {
+  const [isAnimated, setIsAnimated] = useState(false);
+  const [answers, setAnswers] = useState([null, null, null]);
+  const [quizDone, setQuizDone] = useState(false);
+  const finalRef = React.useRef(null);
+
+  useEffect(() => {
+    const t = setInterval(() => setIsAnimated(a => !a), 1000);
+    return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    if (quizDone && finalRef.current) {
+      finalRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [quizDone]);
+
+  const font = '"Press Start 2P", "VT323", "Courier New", monospace';
+  const allYes = answers[0] === 'Да' && answers[1] === 'Да' && answers[2] === 'Да';
+  const sectionWrap = { maxWidth: 480, margin: '0 auto', width: '100%' };
+  const linkImg = { width: 44, height: 44, border: '3px solid #222', borderRadius: 6, background: '#fff' };
+
+  function setAnswer(i, value) {
+    setAnswers(a => a.map((v, idx) => (idx === i ? value : v)));
+  }
+
+  const contacts = (
+    <div style={{ display: 'flex', gap: 20, justifyContent: 'center' }}>
+      <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+        <img src="/hh.png" alt="Скачать резюме" style={linkImg} />
+      </a>
+      <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+        <img src="/tg.png" alt="Telegram" style={linkImg} />
+      </a>
+      <a href="https://washechuvachestvo.notion.site/11f172e21500808782edf8cb8ab43cab" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+        <img src="/me.png" alt="Notion" style={linkImg} />
+      </a>
+    </div>
+  );
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#FCFAFA', fontFamily: font, padding: '32px 16px 64px', boxSizing: 'border-box' }}>
+      {/* Hero */}
+      <div style={{ ...sectionWrap, textAlign: 'center', marginBottom: 48 }}>
+        <img src={isAnimated ? '/me_start_down.png' : '/me_start.png'} alt="Никита" style={{ width: '60%', maxWidth: 220, height: 'auto' }} />
+        <h1 style={{ fontSize: '1.3rem', fontWeight: 900, margin: '16px 0 12px', lineHeight: 1.4 }}>Привет, я Никита</h1>
+        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, margin: '0 0 20px' }}>
+          Это моё портфолио — обычно это игра, но с телефона я расскажу о кейсах в роли проджект-менеджера прямо здесь.
+        </p>
+        {contacts}
+      </div>
+
+      {/* Завязка */}
+      <div style={{ ...sectionWrap, marginBottom: 40, textAlign: 'center' }}>
+        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, margin: 0 }}>
+          Один день в офисе — четыре коллеги, четыре задачи. Погнали 👇
+        </p>
+      </div>
+
+      {/* Кейсы */}
+      {MOBILE_NPCS.map(npc => (
+        <div key={npc.key} style={{ ...sectionWrap, marginBottom: 44 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <img src={npc.avatar} alt={npc.name} style={{ width: 40, height: 40, borderRadius: 6, border: '2px solid #222', background: '#fff' }} />
+            <span style={{ fontWeight: 900, fontSize: '0.8rem' }}>{npc.name}</span>
+          </div>
+          <div style={{ background: 'white', border: '3px solid #000', borderRadius: 8, boxShadow: '0 2px 0 #222', padding: '0.8em 1em', fontSize: '0.7rem', lineHeight: 1.6, marginBottom: 16 }}>
+            {npc.hook}
+          </div>
+          <ProjectCard inline {...PROJECT_CARDS[npc.key]} />
+        </div>
+      ))}
+
+      {/* Денежка */}
+      <div style={{ ...sectionWrap, textAlign: 'center', marginBottom: 40 }}>
+        <img src={isAnimated ? '/pizza_up.png' : '/pizza_down.png'} alt="Денежка" style={{ width: 96, height: 96 }} />
+        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, marginTop: 12 }}>
+          Четыре проекта закрыты — пора за заслуженной зарплатой!
+        </p>
+      </div>
+
+      {/* Мини-тест */}
+      <div style={{ ...sectionWrap, marginBottom: 40 }}>
+        <XpWindow title="Мини-тест для будущих коллег" inline>
+          <div style={{ width: '100%', textAlign: 'left' }}>
+            {QUIZ_QUESTIONS.map((q, i) => (
+              <div key={i} style={{ marginBottom: 20, fontSize: '0.8rem', lineHeight: 1.7 }}>
+                {q.prefix}<span style={{ color: '#1976d2', fontWeight: 700 }}>{q.accent}</span>{q.suffix}
+                <div style={{ marginTop: 10, display: 'flex', gap: 24 }}>
+                  {['Да', 'Нет'].map(opt => (
+                    <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+                      <input
+                        type="radio"
+                        name={`m-q${i}`}
+                        value={opt}
+                        checked={answers[i] === opt}
+                        onChange={() => setAnswer(i, opt)}
+                        style={{ accentColor: '#1976d2', width: 18, height: 18 }}
+                      /> {opt}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <button
+              style={{ marginTop: 4, fontWeight: 900, fontSize: '0.9rem', borderRadius: 10, border: '2px solid #222', background: '#1976d2', color: '#fff', padding: '12px 28px', fontFamily: 'inherit', cursor: allYes ? 'pointer' : 'not-allowed', opacity: allYes ? 1 : 0.5 }}
+              disabled={!allYes}
+              onClick={() => setQuizDone(true)}
+            >
+              Ответить
+            </button>
+          </div>
+        </XpWindow>
+      </div>
+
+      {/* Финал */}
+      {quizDone && (
+        <div ref={finalRef} style={sectionWrap}>
+          <FinalScreen inline />
+        </div>
+      )}
+    </div>
+  );
+}
 
 function StartScreen({ onStart }) {
   // Добавляем состояние для анимации
@@ -315,7 +471,7 @@ function MoneyPreloader() {
 }
 
 // Финальный экран с конфетти
-function FinalScreen() {
+function FinalScreen({ inline }) {
   useEffect(() => {
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 3000 };
     function randomInRange(min, max) {
@@ -335,7 +491,7 @@ function FinalScreen() {
   }, []);
   const paragraphStyle = { fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 };
   return (
-    <XpWindow title="Спасибо за внимание!">
+    <XpWindow title="Спасибо за внимание!" inline={inline}>
       <div style={paragraphStyle}>
         Сейчас я ищу возможности, где смогу применить свой опыт для создания полезных и работающих решений.
       </div>
@@ -1457,8 +1613,6 @@ function App() {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1200
   );
-  // Состояние для анимации картинки в заглушке
-  const [isAnimated, setIsAnimated] = useState(false);
   useEffect(() => {
     function handleResize() {
       setWindowWidth(window.innerWidth);
@@ -1466,135 +1620,10 @@ function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimated(prev => !prev);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
-  if (windowWidth < 1200) {
-    // Адаптивные размеры для заглушки
-    let headerFontSize, textFontSize, buttonFontSize, buttonPadding, gap, playerImgMaxWidth, maxWidth;
-    if (windowWidth < 700) {
-      headerFontSize = '1rem';
-      textFontSize = '0.6rem';
-      buttonFontSize = '0.7rem';
-      buttonPadding = '0.4rem 0.7rem';
-      gap = '0.5rem';
-      playerImgMaxWidth = '90px';
-      maxWidth = '92vw';
-    } else if (windowWidth < 1000) {
-      headerFontSize = '1.3rem';
-      textFontSize = '0.8rem';
-      buttonFontSize = '0.9rem';
-      buttonPadding = '0.6rem 1.2rem';
-      gap = '1rem';
-      playerImgMaxWidth = '140px';
-      maxWidth = '80vw';
-    } else if (windowWidth < 1500) {
-      headerFontSize = '1.7rem';
-      textFontSize = '0.95rem';
-      buttonFontSize = '1.1rem';
-      buttonPadding = '0.8rem 1.7rem';
-      gap = '1.5rem';
-      playerImgMaxWidth = '220px';
-      maxWidth = '60vw';
-    } else {
-      headerFontSize = '2.2rem';
-      textFontSize = '1.2rem';
-      buttonFontSize = '1.4rem';
-      buttonPadding = '1.2rem 2.2rem';
-      gap = '2.5rem';
-      playerImgMaxWidth = '320px';
-      maxWidth = '40vw';
-    }
-    const isMobileStub = windowWidth < 700;
-    return (
-      <div style={{
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: '#FCFAFA',
-        display: isMobileStub ? 'flex' : 'grid',
-        flexDirection: isMobileStub ? 'column' : undefined,
-        alignItems: 'center',
-        justifyContent: 'center',
-        justifyItems: isMobileStub ? undefined : 'center',
-        gridTemplateColumns: isMobileStub ? undefined : 'repeat(8, 1fr)',
-        gridTemplateRows: isMobileStub ? undefined : 'repeat(8, 1fr)',
-        fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-      }}>
-        {/* Изображение игрока */}
-        <div style={{
-          gridColumn: isMobileStub ? undefined : '3 / 5',
-          gridRow: isMobileStub ? undefined : '4',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginBottom: isMobileStub ? gap : 0,
-        }}>
-          <img
-            src={isAnimated ? "/me_start_down.png" : "/me_start.png"}
-            alt="Главный герой"
-            style={{
-              width: '100%',
-              maxWidth: playerImgMaxWidth,
-              height: 'auto',
-              transition: 'opacity 0.3s',
-            }}
-          />
-        </div>
-        {/* Текст и кнопка */}
-        <div style={{
-          gridColumn: isMobileStub ? undefined : '6 / 8',
-          gridRow: isMobileStub ? undefined : '4',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: gap,
-          alignItems: isMobileStub ? 'center' : 'flex-start',
-          justifyContent: 'center',
-          textAlign: isMobileStub ? 'center' : 'left',
-          maxWidth: maxWidth,
-        }}>
-          <h1 style={{
-            fontSize: headerFontSize,
-            fontWeight: 900,
-            margin: 0,
-            lineHeight: 1.3,
-            whiteSpace: isMobileStub ? 'normal' : 'nowrap',
-            textAlign: isMobileStub ? 'center' : 'left',
-            maxWidth: maxWidth,
-          }}>
-            Упс, только десктоп!
-          </h1>
-          <p style={{
-            fontSize: textFontSize,
-            lineHeight: 1.6,
-            margin: 0,
-            maxWidth: maxWidth,
-            marginTop: isMobileStub ? gap : 0,
-          }}>
-            Откройте на большом экране или скачайте резюме просто так
-          </p>
-          <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{
-            color: '#1976d2',
-            textDecoration: 'underline',
-            fontWeight: 700,
-            fontSize: buttonFontSize,
-            padding: buttonPadding,
-            border: '2px solid #1976d2',
-            borderRadius: 8,
-            background: '#fff',
-            boxShadow: '0 2px 0 #1976d2',
-            marginTop: isMobileStub ? gap : 8,
-            width: 'fit-content',
-            display: 'inline-block',
-            whiteSpace: 'nowrap',
-            maxWidth: maxWidth,
-          }}>Скачать резюме</a>
-        </div>
-      </div>
-    );
+  // На узких экранах (< 1024px) показываем мобильную витрину вместо игры с управлением
+  if (windowWidth < 1024) {
+    return <MobileShowcase />;
   }
 
   return (
