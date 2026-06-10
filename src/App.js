@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import confetti from 'canvas-confetti';
 
+// Список ассетов для прелоадера (константа на уровне модуля — стабильная ссылка)
+const assetsToPreload = [
+  '/me_start_down.png', '/me_start.png', '/pizza_up.png', '/pizza_down.png',
+  '/bold_pm_up.png', '/bold_pm.png', '/blond_down.png', '/blond.png',
+  '/hr_stay.png', '/hr_drink.png', '/coder_active.png', '/coder_stay.png',
+  '/me_avatar.png', '/bold_pm_avatar.png', '/blond_avatar.png', '/hr_avatar.png', '/coder_avatar.png',
+  '/pizza_down.png', '/icon_project_default.png'
+];
+
 function StartScreen({ onStart }) {
   // Добавляем состояние для анимации
   const [isAnimated, setIsAnimated] = useState(false);
@@ -540,9 +549,6 @@ function Game() {
   const [showPlayerReply, setShowPlayerReply] = useState(false);
   const [showProjectCard, setShowProjectCard] = useState(false);
 
-  // Состояние для завершённых проектов (4 проекта)
-  const [completedProjects, setCompletedProjects] = useState([false, false, false, false]);
-
   // Иконки для каунтера проектов
   const allIcons = {
     pasha: '/icon_project_ttm.png',
@@ -600,22 +606,13 @@ function Game() {
   }
 
   // Адаптивные размеры для подсказок
-  let hintFontSize, hintBottom, hintPadding, hintMaxWidth;
+  let hintFontSize;
   if (windowWidth < 1000) {
     hintFontSize = '0.7rem';
-    hintBottom = 10;
-    hintPadding = '0.2em 0.4em';
-    hintMaxWidth = '90vw';
   } else if (windowWidth >= 1000 && windowWidth <= 1500) {
     hintFontSize = '1.05rem';
-    hintBottom = 42;
-    hintPadding = undefined;
-    hintMaxWidth = undefined;
   } else {
     hintFontSize = '1.25rem';
-    hintBottom = 60;
-    hintPadding = undefined;
-    hintMaxWidth = undefined;
   }
 
   // Адаптивные размеры для спрайтов и каунтеров
@@ -732,6 +729,9 @@ function Game() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // Обработчик использует функциональные обновления стейта и читает актуальные
+    // границы/охранные клетки на момент срабатывания; перепривязка нужна только при смене направления.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction]);
 
   const spriteMap = {
@@ -782,13 +782,6 @@ function Game() {
           if (activeNpc === 'pizza') setCompletedPizza(true);
           // Добавляем в порядок завершения, если ещё не добавлен
           setCompletedOrder(prev => prev.includes(activeNpc) ? prev : [...prev, activeNpc]);
-          setCompletedProjects(prev => {
-            const idx = prev.findIndex(x => !x);
-            if (idx === -1) return prev;
-            const next = [...prev];
-            next[idx] = true;
-            return next;
-          });
           setDialogPairStep(0);
           setShowPlayerReply(false);
           setShowProjectCard(false);
@@ -800,6 +793,9 @@ function Game() {
     }
     window.addEventListener('keydown', handleSpace);
     return () => window.removeEventListener('keydown', handleSpace);
+    // activeNpc и isNearPizza намеренно не в зависимостях: обработчик читает их
+    // на момент нажатия, а перепривязка завязана на стадии диалога и близость к NPC.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogActive, showPlayerReply, dialogPairStep, showProjectCard, isNearNpc, isNearPolina, isNearHrLena, isNearLexa, activeDialogPairs.length]);
 
   // Добавляем CSS-анимацию для мигания баббла игрока
@@ -1287,16 +1283,6 @@ function Game() {
     </div>
   );
 
-  const pizzaFinalCard = <FinalScreen />;
-
-  // Список ассетов для прелоадера
-  const assetsToPreload = [
-    '/me_start_down.png', '/me_start.png', '/pizza_up.png', '/pizza_down.png',
-    '/bold_pm_up.png', '/bold_pm.png', '/blond_down.png', '/blond.png',
-    '/hr_stay.png', '/hr_drink.png', '/coder_active.png', '/coder_stay.png',
-    '/me_avatar.png', '/bold_pm_avatar.png', '/blond_avatar.png', '/hr_avatar.png', '/coder_avatar.png',
-    '/pizza_down.png', '/icon_project_default.png'
-  ];
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     let loaded = 0;
@@ -1319,7 +1305,11 @@ function Game() {
   function playSuccessSound() {
     const audio = new window.Audio('/success.mp3');
     audio.volume = 0.5;
-    audio.play();
+    // Браузеры могут отклонить play() без явного пользовательского жеста — гасим rejection
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {});
+    }
   }
 
   return (
