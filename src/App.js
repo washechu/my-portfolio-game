@@ -2,6 +2,147 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import confetti from 'canvas-confetti';
 
+// Список ассетов для прелоадера (константа на уровне модуля — стабильная ссылка)
+const assetsToPreload = [
+  '/me_start_down.png', '/me_start.png', '/pizza_up.png', '/pizza_down.png',
+  '/bold_pm_up.png', '/bold_pm.png', '/blond_down.png', '/blond.png',
+  '/hr_stay.png', '/hr_drink.png', '/coder_active.png', '/coder_stay.png',
+  '/me_avatar.png', '/bold_pm_avatar.png', '/blond_avatar.png', '/hr_avatar.png', '/coder_avatar.png',
+  '/pizza_down.png', '/icon_project_default.png'
+];
+
+// --- Общие стили и компоненты окна в стиле XP/мак ---
+const xpWindowStyle = {
+  position: 'absolute',
+  left: '50%',
+  top: '50%',
+  transform: 'translate(-50%, -50%)',
+  background: 'white',
+  border: '2.5px solid #3566b0',
+  borderBottom: '2.5px solid #222',
+  borderRadius: '16px 16px 0 0',
+  padding: '0 32px 32px 32px',
+  minWidth: 420,
+  maxWidth: 800,
+  width: 'auto',
+  minHeight: 320,
+  zIndex: 200,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
+  fontSize: '1rem',
+  textAlign: 'center',
+  boxShadow: '0 4px 0 #222',
+  overflow: 'hidden',
+};
+
+const xpTitleBarStyle = {
+  background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
+  color: '#fff',
+  padding: '10px 32px',
+  paddingBottom: '12px',
+  borderBottom: '2px solid #222',
+  borderRadius: '12px 12px 0 0',
+  width: '100%',
+  fontWeight: 900,
+  fontSize: '1.1rem',
+  textAlign: 'left',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+};
+
+const closeHintStyle = {
+  position: 'absolute',
+  left: '50%',
+  top: 'calc(50% + 270px)',
+  transform: 'translate(-50%, 0)',
+  color: 'white',
+  fontSize: '0.8rem',
+  zIndex: 201,
+  fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
+  whiteSpace: 'nowrap',
+  padding: 0,
+  margin: 0,
+};
+
+// Кружочки-светофор в шапке окна
+function TrafficLights() {
+  return (
+    <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
+      <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
+      <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
+      <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
+    </span>
+  );
+}
+
+// Окно в стиле XP с заголовком; при showCloseHint показывает подсказку «Нажми Пробел, чтобы закрыть»
+function XpWindow({ title, children, showCloseHint }) {
+  return (
+    <>
+      <div style={xpWindowStyle}>
+        <div style={xpTitleBarStyle}>
+          <span>{title}</span>
+          <TrafficLights />
+        </div>
+        <div style={{ height: 24 }} />
+        {children}
+      </div>
+      {showCloseHint && (
+        <div style={closeHintStyle}>Нажми Пробел, чтобы закрыть</div>
+      )}
+    </>
+  );
+}
+
+// Карточка кейса: Задача / Решение / Результат
+function ProjectCard({ title, task, solution, result }) {
+  const sectionTitleStyle = { fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%' };
+  const sectionTextStyle = { fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 };
+  return (
+    <XpWindow title={title} showCloseHint>
+      <div>
+        <div style={{ ...sectionTitleStyle, marginTop: 0 }}>Задача</div>
+        <div style={sectionTextStyle}>{task}</div>
+        <div style={{ ...sectionTitleStyle, marginTop: '24px' }}>Решение</div>
+        <div style={sectionTextStyle}>{solution}</div>
+        <div style={{ ...sectionTitleStyle, marginTop: '24px' }}>Результат</div>
+        <div style={{ ...sectionTextStyle, marginBottom: 0 }}>{result}</div>
+      </div>
+    </XpWindow>
+  );
+}
+
+// Данные кейсов по каждому NPC (ключ совпадает с activeNpc)
+const PROJECT_CARDS = {
+  pasha: {
+    title: 'Метрики Time To Market',
+    task: 'Нужно было понять, где теряется время при выводе новых фичей и как ускорить релизы.',
+    solution: 'Внедрил метрики Time To Market, автоматизировал сбор данных, построил дешборд и провёл ретроспективу с командой.',
+    result: 'Команда увидела реальные узкие места и ускорила релизы на 30%.',
+  },
+  hrlena: {
+    title: 'Онбординг новых сотрудников',
+    task: 'У новых сотрудников не было нужной инфы: кто за что отвечает, как устроена структура и как работает сложный продукт',
+    solution: 'Я исследовал CJM нового сотрудника и проанализировал выводы. Решением стали обучающий курс, чек-лист и сводная страница в Confluence.',
+    result: 'Выходные NPS-опросы подтверждают высокий уровень удовлетворенности процессом онбординга.',
+  },
+  polina: {
+    title: 'Операционный контроль в Jira',
+    task: '8 продуктовых команд —  разные подходы к статусам. Нужно было унифицировать процесс.',
+    solution: 'Провёл аудит, собрал требования, разработал флоу задач и шаблон отчёта, внедрил единый процесс и обучил команды.',
+    result: 'Теперь у руководителя есть наглядный инструмент для контроля, а у команд — прозрачный и регулярный формат статусов.',
+  },
+  lexa: {
+    title: 'Анализ взаимодействия с ИТ',
+    task: 'ИТ лидировали встречу с приоритетами за круглым столом с заказчиками. Общих принципов приоритезации не было и всем было сложно договориться.',
+    solution: 'Провёл аудит взаимодействия, описал болевые точки и предложил единый принцип приоритезации, за который теперь отвечают бизнес-команды.',
+    result: 'Процесс стал прозрачным: бизнес приносит уже согласованный бэклог, а ИТ фокусируется на задачах с понятным приоритетом.',
+  },
+};
+
 function StartScreen({ onStart }) {
   // Добавляем состояние для анимации
   const [isAnimated, setIsAnimated] = useState(false);
@@ -192,65 +333,20 @@ function FinalScreen() {
     }, 400);
     return () => clearInterval(interval);
   }, []);
+  const paragraphStyle = { fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 };
   return (
-    <div style={{
-      position: 'absolute',
-      left: '50%',
-      top: '50%',
-      transform: 'translate(-50%, -50%)',
-      background: 'white',
-      border: '2.5px solid #3566b0',
-      borderBottom: '2.5px solid #222',
-      borderRadius: '16px 16px 0 0',
-      padding: '0 32px 32px 32px',
-      minWidth: 420,
-      maxWidth: 800,
-      width: 'auto',
-      minHeight: 320,
-      zIndex: 200,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-      fontSize: '1rem',
-      textAlign: 'center',
-      boxShadow: '0 4px 0 #222',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-        color: '#fff',
-        padding: '10px 32px',
-        paddingBottom: '12px',
-        borderBottom: '2px solid #222',
-        borderRadius: '12px 12px 0 0',
-        width: '100%',
-        fontWeight: 900,
-        fontSize: '1.1rem',
-        textAlign: 'left',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <span>Спасибо за внимание!</span>
-        <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-        </span>
-      </div>
-      <div style={{ height: 24 }} />
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+    <XpWindow title="Спасибо за внимание!">
+      <div style={paragraphStyle}>
         Сейчас я ищу возможности, где смогу применить свой опыт для создания полезных и работающих решений.
       </div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+      <div style={paragraphStyle}>
         Я умею придумывать, наводить порядок и делать это без лишнего шума. Предпочитаю работать тихо и профессионально, но с чувством юмора.
       </div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
+      <div style={paragraphStyle}>
         До встречи на собеседовании!
       </div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
-      <div style={{ fontSize: '0.95rem', color: '#222', marginBottom: '1.2em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>&nbsp;</div>
+      <div style={paragraphStyle}>&nbsp;</div>
+      <div style={paragraphStyle}>&nbsp;</div>
       <div style={{display:'flex',gap:32,flexWrap:'wrap',marginTop:16,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start',width:'100%'}}>
         <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'flex-start',textDecoration:'none'}}>
           <img src="/hh.png" alt="Скачать резюме" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
@@ -262,7 +358,7 @@ function FinalScreen() {
           <img src="/me.png" alt="Еще раз!" style={{width:48,height:48,border:'3px solid #222',borderRadius:6,background:'#fff'}} />
         </a>
       </div>
-    </div>
+    </XpWindow>
   );
 }
 
@@ -540,9 +636,6 @@ function Game() {
   const [showPlayerReply, setShowPlayerReply] = useState(false);
   const [showProjectCard, setShowProjectCard] = useState(false);
 
-  // Состояние для завершённых проектов (4 проекта)
-  const [completedProjects, setCompletedProjects] = useState([false, false, false, false]);
-
   // Иконки для каунтера проектов
   const allIcons = {
     pasha: '/icon_project_ttm.png',
@@ -600,22 +693,13 @@ function Game() {
   }
 
   // Адаптивные размеры для подсказок
-  let hintFontSize, hintBottom, hintPadding, hintMaxWidth;
+  let hintFontSize;
   if (windowWidth < 1000) {
     hintFontSize = '0.7rem';
-    hintBottom = 10;
-    hintPadding = '0.2em 0.4em';
-    hintMaxWidth = '90vw';
   } else if (windowWidth >= 1000 && windowWidth <= 1500) {
     hintFontSize = '1.05rem';
-    hintBottom = 42;
-    hintPadding = undefined;
-    hintMaxWidth = undefined;
   } else {
     hintFontSize = '1.25rem';
-    hintBottom = 60;
-    hintPadding = undefined;
-    hintMaxWidth = undefined;
   }
 
   // Адаптивные размеры для спрайтов и каунтеров
@@ -732,6 +816,9 @@ function Game() {
     }
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // Обработчик использует функциональные обновления стейта и читает актуальные
+    // границы/охранные клетки на момент срабатывания; перепривязка нужна только при смене направления.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction]);
 
   const spriteMap = {
@@ -782,13 +869,6 @@ function Game() {
           if (activeNpc === 'pizza') setCompletedPizza(true);
           // Добавляем в порядок завершения, если ещё не добавлен
           setCompletedOrder(prev => prev.includes(activeNpc) ? prev : [...prev, activeNpc]);
-          setCompletedProjects(prev => {
-            const idx = prev.findIndex(x => !x);
-            if (idx === -1) return prev;
-            const next = [...prev];
-            next[idx] = true;
-            return next;
-          });
           setDialogPairStep(0);
           setShowPlayerReply(false);
           setShowProjectCard(false);
@@ -800,6 +880,9 @@ function Game() {
     }
     window.addEventListener('keydown', handleSpace);
     return () => window.removeEventListener('keydown', handleSpace);
+    // activeNpc и isNearPizza намеренно не в зависимостях: обработчик читает их
+    // на момент нажатия, а перепривязка завязана на стадии диалога и близость к NPC.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogActive, showPlayerReply, dialogPairStep, showProjectCard, isNearNpc, isNearPolina, isNearHrLena, isNearLexa, activeDialogPairs.length]);
 
   // Добавляем CSS-анимацию для мигания баббла игрока
@@ -815,437 +898,12 @@ function Game() {
     document.head.appendChild(style);
   }
 
-  // Карточка проекта для Паши
-  const pashaProjectCard = (
-    <>
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'white',
-          border: '2.5px solid #3566b0',
-          borderBottom: '2.5px solid #222',
-          borderRadius: '16px 16px 0 0',
-          padding: '0 32px 32px 32px',
-          minWidth: 420,
-          maxWidth: 800,
-          width: 'auto',
-          minHeight: 320,
-          zIndex: 200,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          fontSize: '1rem',
-          textAlign: 'center',
-          boxShadow: '0 4px 0 #222',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{
-          background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-          color: '#fff',
-          padding: '10px 32px',
-          paddingBottom: '12px',
-          borderBottom: '2px solid #222',
-          borderRadius: '12px 12px 0 0',
-          width: '100%',
-          fontWeight: 900,
-          fontSize: '1.1rem',
-          textAlign: 'left',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span>Метрики Time To Market</span>
-          <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-          </span>
-        </div>
-        <div style={{ height: 24 }} />
-        <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
-          Задача
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-          Нужно было понять, где теряется время при выводе новых фичей и как ускорить релизы.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Решение
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-          Внедрил метрики Time To Market, автоматизировал сбор данных, построил дешборд и провёл ретроспективу с командой.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Результат
-        </div>
-        <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-          Команда увидела реальные узкие места и ускорила релизы на 30%.
-          </div>
-        </div>
-      </div>
-      {/* Подсказка вне баббла */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 270px)',
-          transform: 'translate(-50%, 0)',
-          color: 'white',
-          fontSize: '0.8rem',
-          zIndex: 201,
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          whiteSpace: 'nowrap',
-          padding: 0,
-          margin: 0,
-        }}
-      >
-        Нажми Пробел, чтобы закрыть
-      </div>
-    </>
-  );
-
-  // Карточка проекта для Лены
-  const hrLenaProjectCard = (
-    <>
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'white',
-          border: '2.5px solid #3566b0',
-          borderBottom: '2.5px solid #222',
-          borderRadius: '16px 16px 0 0',
-          padding: '0 32px 32px 32px',
-          minWidth: 420,
-          maxWidth: 800,
-          width: 'auto',
-          minHeight: 320,
-          zIndex: 200,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          fontSize: '1rem',
-          textAlign: 'center',
-          boxShadow: '0 4px 0 #222',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{
-          background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-          color: '#fff',
-          padding: '10px 32px',
-          paddingBottom: '12px',
-          borderBottom: '2px solid #222',
-          borderRadius: '12px 12px 0 0',
-          width: '100%',
-          fontWeight: 900,
-          fontSize: '1.1rem',
-          textAlign: 'left',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span>Онбординг новых сотрудников</span>
-          <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-          </span>
-        </div>
-        <div style={{ height: 24 }} />
-        <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
-          Задача
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-          У новых сотрудников не было нужной инфы: кто за что отвечает, как устроена структура и как работает сложный продукт
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Решение
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-          Я исследовал CJM нового сотрудника и проанализировал выводы. Решением стали обучающий курс, чек-лист и сводная страница в Confluence.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Результат
-        </div>
-        <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-          Выходные NPS-опросы подтверждают высокий уровень удовлетворенности процессом онбординга.
-          </div>
-        </div>
-      </div>
-      {/* Подсказка вне баббла */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 270px)',
-          transform: 'translate(-50%, 0)',
-          color: 'white',
-          fontSize: '0.8rem',
-          zIndex: 201,
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          whiteSpace: 'nowrap',
-          padding: 0,
-          margin: 0,
-        }}
-      >
-        Нажми Пробел, чтобы закрыть
-      </div>
-    </>
-  );
-
-  // Карточка проекта для Полины
-  const polinaProjectCard = (
-    <>
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'white',
-          border: '2.5px solid #3566b0',
-          borderBottom: '2.5px solid #222',
-          borderRadius: '16px 16px 0 0',
-          padding: '0 32px 32px 32px',
-          minWidth: 420,
-          maxWidth: 800,
-          width: 'auto',
-          minHeight: 320,
-          zIndex: 200,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          fontSize: '1rem',
-          textAlign: 'center',
-          boxShadow: '0 4px 0 #222',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{
-          background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-          color: '#fff',
-          padding: '10px 32px',
-          paddingBottom: '12px',
-          borderBottom: '2px solid #222',
-          borderRadius: '12px 12px 0 0',
-          width: '100%',
-          fontWeight: 900,
-          fontSize: '1.1rem',
-          textAlign: 'left',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span>Операционный контроль в Jira</span>
-          <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-          </span>
-        </div>
-        <div style={{ height: 24 }} />
-        <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
-          Задача
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-            8 продуктовых команд —  разные подходы к статусам. Нужно было унифицировать процесс.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Решение
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-            Провёл аудит, собрал требования, разработал флоу задач и шаблон отчёта, внедрил единый процесс и обучил команды.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Результат
-        </div>
-        <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-            Теперь у руководителя есть наглядный инструмент для контроля, а у команд — прозрачный и регулярный формат статусов.
-          </div>
-        </div>
-      </div>
-      {/* Подсказка вне баббла */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 270px)',
-          transform: 'translate(-50%, 0)',
-          color: 'white',
-          fontSize: '0.8rem',
-          zIndex: 201,
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          whiteSpace: 'nowrap',
-          padding: 0,
-          margin: 0,
-        }}
-      >
-        Нажми Пробел, чтобы закрыть
-      </div>
-    </>
-  );
-
-  // Карточка проекта для Лехи
-  const lexaProjectCard = (
-    <>
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          background: 'white',
-          border: '2.5px solid #3566b0', // XP blue
-          borderBottom: '2.5px solid #222',
-          borderRadius: '16px 16px 0 0', // только сверху
-          padding: '0 32px 32px 32px',
-          minWidth: 420,
-          maxWidth: 800,
-          width: 'auto',
-          minHeight: 320,
-          zIndex: 200,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          fontSize: '1rem',
-          textAlign: 'center',
-          boxShadow: '0 4px 0 #222',
-          overflow: 'hidden',
-        }}
-      >
-        {/* XP Title Bar */}
-        <div style={{
-          background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-          color: '#fff',
-          padding: '10px 32px',
-          paddingBottom: '12px',
-          borderBottom: '2px solid #222',
-          borderRadius: '12px 12px 0 0',
-          width: '100%',
-          fontWeight: 900,
-          fontSize: '1.1rem',
-          textAlign: 'left',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <span>Анализ взаимодействия с ИТ</span>
-          <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-            <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-          </span>
-        </div>
-        <div style={{ height: 24 }} />
-        <div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: 0 }}>
-          Задача
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-            ИТ лидировали встречу с приоритетами за круглым столом с заказчиками. Общих принципов приоритезации не было и всем было сложно договориться.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Решение
-        </div>
-        <div style={{ fontSize: '0.85rem', marginBottom: '1em', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-            Провёл аудит взаимодействия, описал болевые точки и предложил единый принцип приоритезации, за который теперь отвечают бизнес-команды.
-        </div>
-          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '1em', textAlign: 'left', width: '100%', marginTop: '24px' }}>
-          Результат
-        </div>
-        <div style={{ fontSize: '0.85rem', textAlign: 'left', width: '100%', lineHeight: 1.7 }}>
-            Процесс стал прозрачным: бизнес приносит уже согласованный бэклог, а ИТ фокусируется на задачах с понятным приоритетом.
-          </div>
-        </div>
-      </div>
-      {/* Подсказка вне баббла */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 270px)',
-          transform: 'translate(-50%, 0)',
-          color: 'white',
-          fontSize: '0.8rem',
-          zIndex: 201,
-          fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-          whiteSpace: 'nowrap',
-          padding: 0,
-          margin: 0,
-        }}
-      >
-        Нажми Пробел, чтобы закрыть
-      </div>
-    </>
-  );
-
   // --- Внутри компонента Game, рядом с карточками других NPC ---
   const [pizzaQuizStep, setPizzaQuizStep] = useState(0); // 0: тест, 1: финальная карточка
   const [pizzaAnswers, setPizzaAnswers] = useState([null, null, null]);
 
   const pizzaQuizCard = (
-    <div
-      style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        background: 'white',
-        border: '2.5px solid #3566b0',
-        borderBottom: '2.5px solid #222',
-        borderRadius: '16px 16px 0 0',
-        padding: '0 32px 32px 32px',
-        minWidth: 420,
-        maxWidth: 800,
-        width: 'auto',
-        minHeight: 320,
-        zIndex: 200,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        fontFamily: '"Press Start 2P", "VT323", "Courier New", monospace',
-        fontSize: '1rem',
-        textAlign: 'center',
-        boxShadow: '0 4px 0 #222',
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{
-        background: 'linear-gradient(to bottom, #3a6ea5 0%, #2b5797 100%)',
-        color: '#fff',
-        padding: '10px 32px',
-        paddingBottom: '12px',
-        borderBottom: '2px solid #222',
-        borderRadius: '12px 12px 0 0',
-        width: '100%',
-        fontWeight: 900,
-        fontSize: '1.1rem',
-        textAlign: 'left',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <span>Мини-тест для будущих коллег</span>
-        <span style={{ display: 'flex', gap: 6, marginLeft: 16 }}>
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ff5f56', border: '1.5px solid #222', display: 'inline-block' }} />
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#ffbd2e', border: '1.5px solid #222', display: 'inline-block' }} />
-          <span style={{ width: 16, height: 16, borderRadius: '50%', background: '#27c93f', border: '1.5px solid #222', display: 'inline-block' }} />
-        </span>
-      </div>
-      <div style={{ height: 24 }} />
+    <XpWindow title="Мини-тест для будущих коллег">
       <div style={{ width: '100%', marginBottom: '1.2em', textAlign: 'left', fontSize: '0.95rem', lineHeight: 1.7 }}>
         1. Подойдет ли вам парень, готовый <span style={{ color: '#1976d2', fontWeight: 700 }}>много и усердно</span> работать?
         <div style={{ marginTop: 8, marginBottom: 16, display: 'flex', gap: 24, alignItems: 'center', lineHeight: 2.1 }}>
@@ -1284,19 +942,9 @@ function Game() {
       >
         Ответить
       </button>
-    </div>
+    </XpWindow>
   );
 
-  const pizzaFinalCard = <FinalScreen />;
-
-  // Список ассетов для прелоадера
-  const assetsToPreload = [
-    '/me_start_down.png', '/me_start.png', '/pizza_up.png', '/pizza_down.png',
-    '/bold_pm_up.png', '/bold_pm.png', '/blond_down.png', '/blond.png',
-    '/hr_stay.png', '/hr_drink.png', '/coder_active.png', '/coder_stay.png',
-    '/me_avatar.png', '/bold_pm_avatar.png', '/blond_avatar.png', '/hr_avatar.png', '/coder_avatar.png',
-    '/pizza_down.png', '/icon_project_default.png'
-  ];
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     let loaded = 0;
@@ -1319,7 +967,11 @@ function Game() {
   function playSuccessSound() {
     const audio = new window.Audio('/success.mp3');
     audio.volume = 0.5;
-    audio.play();
+    // Браузеры могут отклонить play() без явного пользовательского жеста — гасим rejection
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {});
+    }
   }
 
   return (
@@ -1726,10 +1378,10 @@ function Game() {
       {/* Карточка проекта */}
       {showProjectCard && (
         <>
-          {activeNpc === 'pasha' && !completedPasha ? pashaProjectCard :
-           activeNpc === 'hrlena' && !completedHrLena ? hrLenaProjectCard :
-           activeNpc === 'polina' && !completedPolina ? polinaProjectCard :
-           activeNpc === 'lexa' && !completedLexa ? lexaProjectCard :
+          {activeNpc === 'pasha' && !completedPasha ? <ProjectCard {...PROJECT_CARDS.pasha} /> :
+           activeNpc === 'hrlena' && !completedHrLena ? <ProjectCard {...PROJECT_CARDS.hrlena} /> :
+           activeNpc === 'polina' && !completedPolina ? <ProjectCard {...PROJECT_CARDS.polina} /> :
+           activeNpc === 'lexa' && !completedLexa ? <ProjectCard {...PROJECT_CARDS.lexa} /> :
            activeNpc === 'pizza' && !completedPizza ? (
             <>
               {activeNpc === 'pizza' && !completedPizza ? (
