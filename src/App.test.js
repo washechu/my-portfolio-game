@@ -12,5 +12,5 @@ test('на мобиле (< 1024px) рендерит витрину с кейса
   window.innerWidth = 600;
   render(<App />);
   expect(screen.getByText(/Один день в офисе/i)).toBeInTheDocument();
-  expect(screen.getByText(/Мини-тест для будущих коллег/i)).toBeInTheDocument();
+  expect(screen.getByText(/Тапни монетку/i)).toBeInTheDocument();
 });

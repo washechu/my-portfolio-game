@@ -177,9 +177,12 @@ const QUIZ_QUESTIONS = [
 // Мобильная витрина (< 1024px): тот же нарратив и кейсы, но вертикальным скроллом без управления
 function MobileShowcase() {
   const [isAnimated, setIsAnimated] = useState(false);
+  const [openCases, setOpenCases] = useState({}); // какие кейсы раскрыты по тапу
+  const [showQuiz, setShowQuiz] = useState(false); // мини-тест раскрывается по тапу на монетку
   const [answers, setAnswers] = useState([null, null, null]);
   const [quizDone, setQuizDone] = useState(false);
   const finalRef = React.useRef(null);
+  const quizRef = React.useRef(null);
 
   useEffect(() => {
     const t = setInterval(() => setIsAnimated(a => !a), 1000);
@@ -190,104 +193,129 @@ function MobileShowcase() {
       finalRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [quizDone]);
+  useEffect(() => {
+    if (showQuiz && quizRef.current) {
+      quizRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [showQuiz]);
 
   const font = '"Press Start 2P", "VT323", "Courier New", monospace';
   const allYes = answers[0] === 'Да' && answers[1] === 'Да' && answers[2] === 'Да';
   const sectionWrap = { maxWidth: 480, margin: '0 auto', width: '100%' };
-  const linkImg = { width: 44, height: 44, border: '3px solid #222', borderRadius: 6, background: '#fff' };
+  const textStyle = { fontSize: '0.8rem', lineHeight: 1.8, textAlign: 'left' };
+  // Реплика NPC и карточка проекта — одинаковая ширина и размер шрифта
+  const bubbleStyle = {
+    width: '100%',
+    boxSizing: 'border-box',
+    border: '3px solid #000',
+    borderRadius: 8,
+    boxShadow: '0 2px 0 #222',
+    background: '#fff',
+    padding: '0.9em 1.1em',
+    fontSize: '0.85rem',
+    lineHeight: 1.7,
+    textAlign: 'left',
+    cursor: 'pointer',
+  };
 
   function setAnswer(i, value) {
     setAnswers(a => a.map((v, idx) => (idx === i ? value : v)));
   }
 
-  const contacts = (
-    <div style={{ display: 'flex', gap: 20, justifyContent: 'center' }}>
-      <a href="/resume_fin.pdf" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-        <img src="/hh.png" alt="Скачать резюме" style={linkImg} />
-      </a>
-      <a href="https://t.me/washe_chuvachestvo" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-        <img src="/tg.png" alt="Telegram" style={linkImg} />
-      </a>
-      <a href="https://washechuvachestvo.notion.site/11f172e21500808782edf8cb8ab43cab" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-        <img src="/me.png" alt="Notion" style={linkImg} />
-      </a>
-    </div>
-  );
-
   return (
     <div style={{ minHeight: '100vh', background: '#FCFAFA', fontFamily: font, padding: '32px 16px 64px', boxSizing: 'border-box' }}>
       {/* Hero */}
-      <div style={{ ...sectionWrap, textAlign: 'center', marginBottom: 48 }}>
-        <img src={isAnimated ? '/me_start_down.png' : '/me_start.png'} alt="Никита" style={{ width: '60%', maxWidth: 220, height: 'auto' }} />
-        <h1 style={{ fontSize: '1.3rem', fontWeight: 900, margin: '16px 0 12px', lineHeight: 1.4 }}>Привет, я Никита</h1>
-        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, margin: '0 0 20px' }}>
+      <div style={{ ...sectionWrap, marginBottom: 48 }}>
+        <img src={isAnimated ? '/me_start_down.png' : '/me_start.png'} alt="Никита" style={{ width: 160, maxWidth: '55%', height: 'auto', display: 'block', marginBottom: 16 }} />
+        <h1 style={{ fontSize: '1.3rem', fontWeight: 900, margin: '0 0 16px', lineHeight: 1.4, textAlign: 'left' }}>Привет, я Никита</h1>
+        <p style={{ ...textStyle, margin: '0 0 16px' }}>
           Это моё портфолио — обычно это игра, но с телефона я расскажу о кейсах в роли проджект-менеджера прямо здесь.
         </p>
-        {contacts}
-      </div>
-
-      {/* Завязка */}
-      <div style={{ ...sectionWrap, marginBottom: 40, textAlign: 'center' }}>
-        <p style={{ fontSize: '0.8rem', lineHeight: 1.8, margin: 0 }}>
+        <p style={{ ...textStyle, margin: 0 }}>
           Один день в офисе — четыре коллеги, четыре задачи. Погнали 👇
         </p>
       </div>
 
       {/* Кейсы */}
-      {MOBILE_NPCS.map(npc => (
-        <div key={npc.key} style={{ ...sectionWrap, marginBottom: 44 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <img src={npc.avatar} alt={npc.name} style={{ width: 40, height: 40, borderRadius: 6, border: '2px solid #222', background: '#fff' }} />
-            <span style={{ fontWeight: 900, fontSize: '0.8rem' }}>{npc.name}</span>
+      {MOBILE_NPCS.map(npc => {
+        const open = openCases[npc.key];
+        return (
+          <div key={npc.key} style={{ ...sectionWrap, marginBottom: 44 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <img src={npc.avatar} alt={npc.name} style={{ width: 40, height: 40, borderRadius: 6, border: '2px solid #222', background: '#fff' }} />
+              <span style={{ fontWeight: 900, fontSize: '0.8rem' }}>{npc.name}</span>
+            </div>
+            <div
+              className={open ? undefined : 'tap-blink'}
+              style={bubbleStyle}
+              onClick={() => setOpenCases(s => ({ ...s, [npc.key]: true }))}
+            >
+              {npc.hook}
+              {!open && (
+                <div style={{ marginTop: 10, fontSize: '0.6rem', color: '#1976d2', fontWeight: 700 }}>
+                  Нажми, чтобы открыть проект →
+                </div>
+              )}
+            </div>
+            {open && (
+              <div style={{ marginTop: 16 }}>
+                <ProjectCard inline {...PROJECT_CARDS[npc.key]} />
+              </div>
+            )}
           </div>
-          <div style={{ background: 'white', border: '3px solid #000', borderRadius: 8, boxShadow: '0 2px 0 #222', padding: '0.8em 1em', fontSize: '0.7rem', lineHeight: 1.6, marginBottom: 16 }}>
-            {npc.hook}
-          </div>
-          <ProjectCard inline {...PROJECT_CARDS[npc.key]} />
-        </div>
-      ))}
+        );
+      })}
 
-      {/* Денежка */}
+      {/* Денежка — по тапу открывает мини-тест */}
       <div style={{ ...sectionWrap, textAlign: 'center', marginBottom: 40 }}>
-        <img src={isAnimated ? '/pizza_up.png' : '/pizza_down.png'} alt="Денежка" style={{ width: 96, height: 96 }} />
+        <img
+          src={isAnimated ? '/pizza_up.png' : '/pizza_down.png'}
+          alt="Денежка"
+          className={showQuiz ? undefined : 'tap-blink'}
+          style={{ width: 96, height: 96, cursor: 'pointer', borderRadius: 12 }}
+          onClick={() => setShowQuiz(true)}
+        />
         <p style={{ fontSize: '0.8rem', lineHeight: 1.8, marginTop: 12 }}>
           Четыре проекта закрыты — пора за заслуженной зарплатой!
+          {!showQuiz && <><br />Тапни монетку 👆</>}
         </p>
       </div>
 
       {/* Мини-тест */}
-      <div style={{ ...sectionWrap, marginBottom: 40 }}>
-        <XpWindow title="Мини-тест для будущих коллег" inline>
-          <div style={{ width: '100%', textAlign: 'left' }}>
-            {QUIZ_QUESTIONS.map((q, i) => (
-              <div key={i} style={{ marginBottom: 20, fontSize: '0.8rem', lineHeight: 1.7 }}>
-                {q.prefix}<span style={{ color: '#1976d2', fontWeight: 700 }}>{q.accent}</span>{q.suffix}
-                <div style={{ marginTop: 10, display: 'flex', gap: 24 }}>
-                  {['Да', 'Нет'].map(opt => (
-                    <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
-                      <input
-                        type="radio"
-                        name={`m-q${i}`}
-                        value={opt}
-                        checked={answers[i] === opt}
-                        onChange={() => setAnswer(i, opt)}
-                        style={{ accentColor: '#1976d2', width: 18, height: 18 }}
-                      /> {opt}
-                    </label>
-                  ))}
+      {showQuiz && (
+        <div ref={quizRef} style={{ ...sectionWrap, marginBottom: 40 }}>
+          <XpWindow title="Мини-тест для будущих коллег" inline>
+            <div style={{ width: '100%', textAlign: 'left' }}>
+              {QUIZ_QUESTIONS.map((q, i) => (
+                <div key={i} style={{ marginBottom: 20, fontSize: '0.8rem', lineHeight: 1.7 }}>
+                  {q.prefix}<span style={{ color: '#1976d2', fontWeight: 700 }}>{q.accent}</span>{q.suffix}
+                  <div style={{ marginTop: 10, display: 'flex', gap: 24 }}>
+                    {['Да', 'Нет'].map(opt => (
+                      <label key={opt} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontWeight: 700 }}>
+                        <input
+                          type="radio"
+                          name={`m-q${i}`}
+                          value={opt}
+                          checked={answers[i] === opt}
+                          onChange={() => setAnswer(i, opt)}
+                          style={{ accentColor: '#1976d2', width: 18, height: 18 }}
+                        /> {opt}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-            <button
-              style={{ marginTop: 4, fontWeight: 900, fontSize: '0.9rem', borderRadius: 10, border: '2px solid #222', background: '#1976d2', color: '#fff', padding: '12px 28px', fontFamily: 'inherit', cursor: allYes ? 'pointer' : 'not-allowed', opacity: allYes ? 1 : 0.5 }}
-              disabled={!allYes}
-              onClick={() => setQuizDone(true)}
-            >
-              Ответить
-            </button>
-          </div>
-        </XpWindow>
-      </div>
+              ))}
+              <button
+                style={{ marginTop: 4, fontWeight: 900, fontSize: '0.9rem', borderRadius: 10, border: '2px solid #222', background: '#1976d2', color: '#fff', padding: '12px 28px', fontFamily: 'inherit', cursor: allYes ? 'pointer' : 'not-allowed', opacity: allYes ? 1 : 0.5 }}
+                disabled={!allYes}
+                onClick={() => setQuizDone(true)}
+              >
+                Ответить
+              </button>
+            </div>
+          </XpWindow>
+        </div>
+      )}
 
       {/* Финал */}
       {quizDone && (
