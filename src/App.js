@@ -96,12 +96,16 @@ function XpWindow({ title, children, showCloseHint, inline }) {
         margin: '0 auto',
       }
     : xpWindowStyle;
+  // В inline (мобильном) режиме шапку делаем компактнее, чтобы окно было в одном масштабе с бабблом
+  const titleStyle = inline
+    ? { ...xpTitleBarStyle, fontSize: '0.85rem', padding: '8px 16px' }
+    : xpTitleBarStyle;
   return (
     <>
       <div style={windowStyle}>
-        <div style={xpTitleBarStyle}>
+        <div style={titleStyle}>
           <span>{title}</span>
-          <TrafficLights />
+          {!inline && <TrafficLights />}
         </div>
         <div style={{ height: 24 }} />
         {children}
@@ -226,13 +230,10 @@ function MobileShowcase() {
     <div style={{ minHeight: '100vh', background: '#FCFAFA', fontFamily: font, padding: '32px 16px 64px', boxSizing: 'border-box' }}>
       {/* Hero */}
       <div style={{ ...sectionWrap, marginBottom: 48 }}>
-        <img src={isAnimated ? '/me_start_down.png' : '/me_start.png'} alt="Никита" style={{ width: 160, maxWidth: '55%', height: 'auto', display: 'block', marginBottom: 16 }} />
+        <img src={isAnimated ? '/me_start_down.png' : '/me_start.png'} alt="Никита" style={{ width: 160, maxWidth: '55%', height: 'auto', display: 'block', margin: '0 auto 16px' }} />
         <h1 style={{ fontSize: '1.3rem', fontWeight: 900, margin: '0 0 16px', lineHeight: 1.4, textAlign: 'left' }}>Привет, я Никита</h1>
-        <p style={{ ...textStyle, margin: '0 0 16px' }}>
-          Это моё портфолио — обычно это игра, но с телефона я расскажу о кейсах в роли проджект-менеджера прямо здесь.
-        </p>
         <p style={{ ...textStyle, margin: 0 }}>
-          Один день в офисе — четыре коллеги, четыре задачи. Погнали 👇
+          Один день в офисе — четыре коллеги, четыре задачи в роли проджект-менеджера. Погнали 👇
         </p>
       </div>
 
@@ -251,12 +252,12 @@ function MobileShowcase() {
               onClick={() => setOpenCases(s => ({ ...s, [npc.key]: true }))}
             >
               {npc.hook}
-              {!open && (
-                <div style={{ marginTop: 10, fontSize: '0.6rem', color: '#1976d2', fontWeight: 700 }}>
-                  Нажми, чтобы открыть проект →
-                </div>
-              )}
             </div>
+            {!open && (
+              <div style={{ marginTop: 8, fontSize: '0.7rem', color: '#1976d2', fontWeight: 700 }}>
+                Нажми, чтобы ответить
+              </div>
+            )}
             {open && (
               <div style={{ marginTop: 16 }}>
                 <ProjectCard inline {...PROJECT_CARDS[npc.key]} />
@@ -271,13 +272,12 @@ function MobileShowcase() {
         <img
           src={isAnimated ? '/pizza_up.png' : '/pizza_down.png'}
           alt="Денежка"
-          className={showQuiz ? undefined : 'tap-blink'}
-          style={{ width: 96, height: 96, cursor: 'pointer', borderRadius: 12 }}
+          style={{ width: 96, height: 96, cursor: 'pointer' }}
           onClick={() => setShowQuiz(true)}
         />
         <p style={{ fontSize: '0.8rem', lineHeight: 1.8, marginTop: 12 }}>
           Четыре проекта закрыты — пора за заслуженной зарплатой!
-          {!showQuiz && <><br />Тапни монетку 👆</>}
+          {!showQuiz && <><br /><span style={{ color: '#1976d2', fontWeight: 700 }}>Тапни монетку 👆</span></>}
         </p>
       </div>
 

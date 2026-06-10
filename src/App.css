@@ -7,18 +7,12 @@ img[alt="Загрузка..."] {
   will-change: transform;
 }
 
-/* Мигание интерактивных элементов мобильной витрины (реплика NPC, монетка) */
+/* Мигание реплики NPC в мобильной витрине — голубым фоном, как у баббла игрока на десктопе */
 @keyframes tapBlink {
-  0%, 100% {
-    border-color: #000;
-    box-shadow: 0 2px 0 #222;
-  }
-  50% {
-    border-color: #1976d2;
-    box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.25), 0 2px 0 #1976d2;
-  }
+  0% { background: #1976d2; }
+  100% { background: #fff; }
 }
 .tap-blink {
-  animation: tapBlink 1.1s ease-in-out infinite;
+  animation: tapBlink 1.2s steps(2, start) infinite;
   cursor: pointer;
 }
